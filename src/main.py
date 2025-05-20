@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageOps, ImageEnhance
 
 original_image = None
 display_image = None
@@ -18,7 +18,7 @@ def update_display():
 
     display_image = original_image.copy()
     img_width, img_height = display_image.size
-    scale = min((MAX_WIDTH - 100) / img_width, (MAX_HEIGHT - 100) / img_height, 1.0)
+    scale = min((MAX_WIDTH - 120) / img_width, (MAX_HEIGHT - 120) / img_height, 1.0)
 
     if scale < 1.0:
         display_image = display_image.resize((int(img_width * scale), int(img_height * scale)), Image.LANCZOS)
@@ -85,6 +85,39 @@ def sepia():
         update_display()
 
 
+def invert():
+    global original_image
+    if original_image:
+        if original_image.mode != "RGB":
+            original_image = original_image.convert("RGB")
+        original_image = ImageOps.invert(original_image)
+        update_display()
+
+
+def brightness_upscale(factor=1.2):
+    global original_image
+    if original_image:
+        enhancer = ImageEnhance.Brightness(original_image)
+        original_image = enhancer.enhance(factor)
+        update_display()
+
+
+def sharpness_upscale(factor=2):
+    global original_image
+    if original_image:
+        enhancer = ImageEnhance.Sharpness(original_image)
+        original_image = enhancer.enhance(factor)
+        update_display()
+
+
+def color_upscale(factor=1.5):
+    global original_image
+    if original_image:
+        enhancer = ImageEnhance.Color(original_image)
+        original_image = enhancer.enhance(factor)
+        update_display()
+
+
 # --- GUI setup ---
 window = Tk()
 window.title("Фоторедактор")
@@ -92,15 +125,21 @@ window.geometry(f"{MAX_WIDTH}x{MAX_HEIGHT}")
 window.resizable(False, False)
 
 # Левая панель с кнопками
-side_panel = Frame(window, width=150, bg="#f0f0f0")
+side_panel = Frame(window, width=170, bg="#f0f0f0")
 side_panel.pack(side=LEFT, fill=Y, padx=10, pady=10)
 
-Button(side_panel, text="Открыть", command=open_file, width=15).pack(pady=5)
-Button(side_panel, text="Повернуть", command=rotate, width=15).pack(pady=5)
-Button(side_panel, text="Ч/Б", command=black_and_white, width=15).pack(pady=5)
-Button(side_panel, text="Отразить", command=flip, width=15).pack(pady=5)
-Button(side_panel, text="Сепия", command=sepia, width=15).pack(pady=5)
-Button(side_panel, text="Сохранить как", command=save_as, width=15).pack(pady=5)
+button_width = 25
+
+Button(side_panel, text="Открыть", command=open_file, width=button_width).pack(pady=5)
+Button(side_panel, text="Повернуть", command=rotate, width=button_width).pack(pady=5)
+Button(side_panel, text="Ч/Б", command=black_and_white, width=button_width).pack(pady=5)
+Button(side_panel, text="Отразить", command=flip, width=button_width).pack(pady=5)
+Button(side_panel, text="Сепия", command=sepia, width=button_width).pack(pady=5)
+Button(side_panel, text="Инверсия", command=invert, width=button_width).pack(pady=5)
+Button(side_panel, text="Увеличить яркость", command=brightness_upscale, width=button_width).pack(pady=5)
+Button(side_panel, text="Увеличить четкость", command=sharpness_upscale, width=button_width).pack(pady=5)
+Button(side_panel, text="Увеличить насыщенность", command=color_upscale, width=button_width).pack(pady=5)
+Button(side_panel, text="Сохранить как", command=save_as, width=button_width).pack(pady=5)
 
 # Область для изображения
 image_frame = Frame(window, bg="gray")

@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import Menu
 import editor_logic as edl
 import customtkinter
+
 
 MAX_WIDTH = 1000
 MAX_HEIGHT = 700
@@ -78,7 +78,7 @@ def start_crop():
     global cropping_mode
     cropping_mode = True
     canvas.config(cursor="cross")
-    info_label.configure(text="Выделите область мышью...")
+    info_label.configure(text="Выделите область мышью...", font=my_font)
 
 
 def on_press(event):
@@ -133,6 +133,8 @@ window.title("Фоторедактор")
 window.geometry(f"{MAX_WIDTH}x{MAX_HEIGHT}")
 window.resizable(False, False)
 
+my_font = customtkinter.CTkFont(family="Verdana", size=12, weight="bold")
+
 # Меню
 
 menu_style = {
@@ -150,7 +152,8 @@ file_btn = tk.Menubutton(
     **menu_style,
     fg="white",
     relief="flat",
-    bd=0
+    bd=0,
+    font=my_font
 )
 file_btn.pack(side="left", padx=10)
 
@@ -159,7 +162,8 @@ file_dropdown = tk.Menu(
     file_btn,
     **menu_style,
     fg="white",
-    tearoff=0
+    tearoff=0,
+    font=my_font
 )
 
 file_dropdown.add_command(label="Открыть", command=open_file, **menu_style)
@@ -171,24 +175,32 @@ file_btn.configure(menu=file_dropdown)
 side_panel = customtkinter.CTkFrame(window, width=200, fg_color="#1a1a1a")
 side_panel.pack(side="left", fill="y", padx=10, pady=10)
 
-btn_style = {"width": 120,
-             "text_color": "white",
-             "fg_color": "#2E2F3A",
-             "hover_color": "#3D3E4A",
-             "border_width": 1,
-             "border_color": "#3D3E4A"
-             }
+btn_style = {
+    "width": 120,
+    "text_color": "white",
+    "fg_color": "#2E2F3A",
+    "hover_color": "#3D3E4A",
+    "border_width": 1,
+    "border_color": "#3D3E4A",
+    "font": my_font
+}
 
-customtkinter.CTkButton(side_panel, text="Повернуть", command=rotate, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Ч/Б", command=black_and_white, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Отразить", command=flip, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Сепия", command=sepia, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Инверсия", command=invert, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Яркость", command=brightness, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Четкость", command=sharpness, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Насыщенность", command=color, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Обрезка", command=start_crop, **btn_style).pack(pady=5)
-customtkinter.CTkButton(side_panel, text="Отменить", command=undo_action, **btn_style).pack(pady=5)
+# 4. Создаем кнопки --------------------------------------------------------
+buttons = [
+    ("Повернуть", rotate),
+    ("Ч/Б", black_and_white),
+    ("Отразить", flip),
+    ("Сепия", sepia),
+    ("Инверсия", invert),
+    ("Яркость", brightness),
+    ("Четкость", sharpness),
+    ("Насыщенность", color),
+    ("Обрезка", start_crop),
+    ("Отменить", undo_action)
+]
+
+for btn_name, btn_command in buttons:
+    customtkinter.CTkButton(side_panel, text=btn_name, command=btn_command, **btn_style).pack(pady=5)
 
 info_label = customtkinter.CTkLabel(side_panel, text="", text_color="white", wraplength=120)
 info_label.pack(pady=5)

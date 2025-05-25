@@ -16,7 +16,7 @@ image_offset_y = 0
 def open_file():
     global original_image
     image_files = r"*.jpg *.jpeg *.png"
-    path = filedialog.askopenfilename(title="Select an Image", filetypes=[("Photo files", image_files)])
+    path = filedialog.askopenfilename(title="Выберите изображение", filetypes=[("Файлы изображений", image_files)])
     if path:
         original_image = Image.open(path)
     return original_image

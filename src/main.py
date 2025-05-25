@@ -1,6 +1,8 @@
 import tkinter as tk
 import editor_logic as edl
 import customtkinter
+import sys
+import os
 
 
 MAX_WIDTH = 1000
@@ -124,12 +126,24 @@ def undo_action():
     update_canvas()
 
 
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+icon_path = resource_path('assets/Icon/editor_logo_white.ico')
+
+
 # --- GUI INIT ---
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
 window = customtkinter.CTk()
 window.title("Фоторедактор")
+window.iconbitmap(resource_path('assets/Icon/editor_logo_white.ico'))
 window.geometry(f"{MAX_WIDTH}x{MAX_HEIGHT}")
 window.resizable(False, False)
 

@@ -1,8 +1,10 @@
-import tkinter as tk
-import editor_logic as edl
-import customtkinter
-import sys
 import os
+import sys
+import tkinter as tk
+from tkinter import PhotoImage
+import customtkinter
+import editor_logic as edl
+from idlelib.tooltip import Hovertip
 
 
 MAX_WIDTH = 1000
@@ -136,7 +138,6 @@ def resource_path(relative_path):
 
 icon_path = resource_path('assets/Icon/editor_logo_white.ico')
 
-
 # --- GUI INIT ---
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
@@ -189,8 +190,9 @@ file_btn.configure(menu=file_dropdown)
 side_panel = customtkinter.CTkFrame(window, width=200, fg_color="#1a1a1a")
 side_panel.pack(side="left", fill="y", padx=10, pady=10)
 
+# Стиль кнопок
 btn_style = {
-    "width": 120,
+    "width": 60,
     "text_color": "white",
     "fg_color": "#2E2F3A",
     "hover_color": "#3D3E4A",
@@ -199,22 +201,130 @@ btn_style = {
     "font": my_font
 }
 
-# 4. Создаем кнопки --------------------------------------------------------
+# Загрузка иконок
+rotate_icon = PhotoImage(file="assets/ButtonIcons/rotate.png")
+bw_icon = PhotoImage(file="assets/ButtonIcons/black_and_white.png")
+flip_icon = PhotoImage(file="assets/ButtonIcons/flip.png")
+sepia_icon = PhotoImage(file="assets/ButtonIcons/sepia.png")
+inversion_icon = PhotoImage(file="assets/ButtonIcons/inversion.png")
+brightness_icon = PhotoImage(file="assets/ButtonIcons/brightness.png")
+sharpness_icon = PhotoImage(file="assets/ButtonIcons/sharpness.png")
+color_icon = PhotoImage(file="assets/ButtonIcons/color.png")
+crop_icon = PhotoImage(file="assets/ButtonIcons/crop.png")
+undo_icon = PhotoImage(file="assets/ButtonIcons/undo.png")
+
+# Кнопки с описаниями
 buttons = [
-    ("Повернуть", rotate),
-    ("Ч/Б", black_and_white),
-    ("Отразить", flip),
-    ("Сепия", sepia),
-    ("Инверсия", invert),
-    ("Яркость", brightness),
-    ("Четкость", sharpness),
-    ("Насыщенность", color),
-    ("Обрезка", start_crop),
-    ("Отменить", undo_action)
+    {
+        "name": "Повернуть",
+        "command": rotate,
+        "icon": rotate_icon,
+        "description": "Поворот изображения на 90° по часовой стрелке"
+    },
+    {
+        "name": "Ч/Б",
+        "command": black_and_white,
+        "icon": bw_icon,
+        "description": "Преобразование цветного изображения в черно-белое"
+    },
+    {
+        "name": "Отразить",
+        "command": flip,
+        "icon": flip_icon,
+        "description": "Зеркальное отражение изображения по горизонтали"
+    },
+    {
+        "name": "Сепия",
+        "command": sepia,
+        "icon": sepia_icon,
+        "description": "Наложение сепийного фильтра (ретро эффект)"
+    },
+    {
+        "name": "Инверсия",
+        "command": invert,
+        "icon": inversion_icon,
+        "description": "Инверсия цветов изображения (негатив)"
+    },
+    {
+        "name": "Яркость",
+        "command": brightness,
+        "icon": brightness_icon,
+        "description": "Регулировка яркости изображения (+20%)"
+    },
+    {
+        "name": "Четкость",
+        "command": sharpness,
+        "icon": sharpness_icon,
+        "description": "Увеличение резкости изображения"
+    },
+    {
+        "name": "Насыщенность",
+        "command": color,
+        "icon": color_icon,
+        "description": "Увелечения насыщенности цветов"
+    },
+    {
+        "name": "Обрезка",
+        "command": start_crop,
+        "icon": crop_icon,
+        "description": "Обрезка изображения (выделите область)"
+    },
+    {
+        "name": "Отменить",
+        "command": undo_action,
+        "icon": undo_icon,
+        "description": "Отмена последнего действия"
+    }
 ]
 
-for btn_name, btn_command in buttons:
-    customtkinter.CTkButton(side_panel, text=btn_name, command=btn_command, **btn_style).pack(pady=5)
+
+# Класс для красивого тултипа
+class ToolTip(customtkinter.CTkToplevel):
+    def __init__(self, widget, text):
+        super().__init__()
+        self.widget = widget
+        self.text = text
+        self.withdraw()
+        self.overrideredirect(True)
+
+        self.label = customtkinter.CTkLabel(
+            self,
+            text=self.text,
+            corner_radius=6,
+            fg_color="#2E2F3A",
+            text_color="white",
+            padx=10,
+            pady=5,
+            wraplength=200
+        )
+        self.label.pack()
+
+        self.widget.bind("<Enter>", self.show)
+        self.widget.bind("<Leave>", self.hide)
+
+    def show(self, event):
+        x = self.widget.winfo_rootx() + self.widget.winfo_width() + 5
+        y = self.widget.winfo_rooty()
+        self.geometry(f"+{x}+{y}")
+        self.deiconify()
+
+    def hide(self, event):
+        self.withdraw()
+
+
+# Создаем кнопки с подсказками
+for btn_info in buttons:
+    btn = customtkinter.CTkButton(
+        side_panel,
+        text="",
+        command=btn_info["command"],
+        **btn_style,
+        image=btn_info["icon"]
+    )
+    btn.pack(pady=5)
+
+    # Создаем подсказку с описанием
+    ToolTip(btn, f"{btn_info['name']}\n\n{btn_info['description']}")
 
 info_label = customtkinter.CTkLabel(side_panel, text="", text_color="white", wraplength=120)
 info_label.pack(pady=5)
